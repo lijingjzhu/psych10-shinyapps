@@ -1,7 +1,6 @@
 <?php
 echo `git status`;
-`git pull`;
-echo "";
+echo `git pull`;
 echo `git status`;
 ?>
 
