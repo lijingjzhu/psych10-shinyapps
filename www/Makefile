@@ -1,3 +1,9 @@
+all: makevol run-apache setup run-shiny
+kill-all: kill-apache kill-shiny
+setup:
+	docker cp setup.sh my-running-app:/var/www/html/app/
+	docker cp /Users/poldrack/code/psych10-shinyapps my-running-app:/var/www/html/app/
+	docker exec my-running-app /bin/bash /var/www/html/app/setup.sh
 prune:
 	docker system prune
 build-apache:
