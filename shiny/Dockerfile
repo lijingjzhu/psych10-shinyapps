@@ -2,5 +2,6 @@
 FROM rocker/shiny
 
 RUN apt-get update && apt-get install -y libssl-dev && apt-get clean && rm -rf /var/lib/apt/lists/*
-RUN wget https://cran.r-project.org/src/contrib/tidyverse_1.1.1.tar.gz
-RUN R CMD INSTALL tidyverse_1.1.1.tar.gz
+RUN echo "install.packages('tidyverse')" > install_tidyverse.R
+RUN Rscript install_tidyverse.R
+
