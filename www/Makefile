@@ -1,8 +1,10 @@
 all: makevol run-apache setup run-shiny
 kill-all: kill-apache kill-shiny
+
 setup:
-	docker cp setup.sh my-running-app:/var/www/html/app/
-	docker exec my-running-app /bin/bash /var/www/html/app/setup.sh
+	docker cp setup.sh apache:/var/www/html/app/
+	docker exec apache /bin/bash /var/www/html/app/setup.sh
+
 prune:
 	docker system prune
 
