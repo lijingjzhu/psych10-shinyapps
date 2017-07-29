@@ -21,7 +21,7 @@ rmvol:
 run-shiny:
 	docker run -dit --rm -p 3838:3838 \
 	--name shiny -v DataVolume1:/srv/shiny-server/app \
-	my-shiny
+	poldrack/tidy-shiny
 shell-shiny:
 	docker exec -i -t shiny /bin/bash
 kill-shiny:
