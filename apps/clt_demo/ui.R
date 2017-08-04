@@ -11,46 +11,52 @@ library(shiny)
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
-  
+
   # Application title
   titlePanel("Central Limit Theorem"),
   
   # Sidebar with a slider input for number of bins 
   sidebarLayout(
     sidebarPanel(
-      p("The Central Limit Theorem states that given a sufficiently large \n
-        sample size from a population with a finite level of variance, \n
-        the mean of all samples from the same population will be \n
-        approximately equal to the mean of the population."),
+      p("The goal of this visualization is to help students understand the 
+        Central Limit Theorem. The Central Limit Theorem states that
+        when independent random variables are averaged, the distribution of
+        sample averages tends to a normal distribution. We this happen
+        even if the the original variables are not normally distributed. This
+        allows us to make inferences about the center of a distribution
+        with only information from the sampling distribution and without 
+        information of the true distribution."),
+      
+       selectInput("distribution", "Population Distribution:",
+                   choices = c("Uniform Distribution" = "uniform", 
+                               "Normal Distribution" = "normal",
+                               "Weibull Distribution" = "weibull",
+                               "T-Distribution, 1 DF" = "tdist")),
        sliderInput("n",
                    "Sample Size",
                    min = 10,
                    max = 2500,
-                   step = 5,
+                   step = 50,
                    value = 500,
                    dragRange = FALSE),
-       sliderInput("var",
-                   "Variance",
-                   min = 1,
-                   max = 200,
-                   step = 50,
-                   value = 5,
-                   dragRange = FALSE),
-       sliderInput("mean",
-                   "Distribution Mean",
-                   min = -30,
-                   max = 30,
-                   step = 10,
-                   value = 10,
-                   dragRange = FALSE)
+      checkboxInput("pop_mean", "Population Mean Overlay", FALSE),
+      checkboxInput("overlay", "Normal Overlay on Sampling Distribution", 
+                    FALSE),
+      checkboxInput("samp_mean", "Sampling Mean", FALSE),
+      
+      h4("Questions"),
+      p("1. What happens to the sampling distribution mean as we increase
+        the sample size?"),
+      p("2. Can you infer anything about the variance of the population
+        distribution given the distribution of sampling averages?"),
+      p("3. True or False: All sampling distributions converge to a 
+        standard normal distribution with a mean of 0 and a standard
+        deviation of 1.")
     ),
-
+    
     mainPanel(
-       plotOutput("distPlot"),
-       h4("Questions"),
-       p("1. What happens when you increase the variance?"),
-       p("2. What happens when you change the mean?"),
-       p("3. What happens when you increase the sample size?")
+      plotOutput("mainPlot"),
+       plotOutput("distPlot")
     )
   )
 ))
