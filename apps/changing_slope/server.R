@@ -23,29 +23,87 @@ shinyServer(function(input, output) {
                      y = rnorm(10, mean = 7, sd = 5))
   })
   
-  
-  
+  observeEvent(input$resid, {
+    
   output$distPlot <- renderPlot({
     fit <- lm(data = v$data, y ~ x)
     
     input_slope <- input$slope %>% as.numeric()
     input_intercept <- input$intercept %>% as.numeric()
+    slope_real <- coef(fit)[2]
+    int_real <- coef(fit)[1]
     
     if (input$answer == TRUE) {
-      input_slope <- coef(fit)[2]
-      input_intercept <- coef(fit)[1]
+      
+      plot_img <- v$data %>% 
+        ggplot() +
+        geom_point(mapping = aes(x = x, y = y)) +
+        geom_abline(slope = input_slope, intercept = input_intercept,
+                    size = 1, color = "blue") +
+        geom_abline(slope = slope_real, intercept = int_real,
+                    size = 1, color = "black") +
+        theme_bw() +
+        labs(x = "X", y = "Y") +
+        coord_cartesian(xlim = c(0, 15), ylim = c(0, 15))
+      
+      if (input$resid == TRUE) {
+        v$data %>% 
+          group_by(x) %>% 
+          mutate(fitted_values = input$intercept + x * input$slope,
+                 top_y = max(y, fitted_values),
+                 bottom_y = min(y, fitted_values)) %>%  
+          ungroup() %>% 
+          ggplot() +
+          geom_point(mapping = aes(x = x, y = y)) +
+          geom_abline(slope = input_slope, intercept = input_intercept,
+                      size = 1, color = "blue") +
+          geom_abline(slope = slope_real, intercept = int_real,
+                      size = 1, color = "black") +
+          geom_segment(mapping = aes(x = x, y = top_y, xend = x, 
+                                     yend = bottom_y), 
+                                     colour = "red") +
+          theme_bw() +
+          labs(x = "X", y = "Y", colour = NULL) +
+          coord_cartesian(xlim = c(0, 15), ylim = c(0, 15))
+        
+      } else {
+        plot_img
+      }
+    } else {
+      plot_img <- v$data %>% 
+        ggplot() +
+        geom_point(mapping = aes(x = x, y = y)) +
+        geom_abline(slope = input_slope, intercept = input_intercept,
+                    size = 1, color = "blue") +
+        theme_bw() +
+        labs(x = "X", y = "Y") +
+        coord_cartesian(xlim = c(0, 15), ylim = c(0, 15))
+      
+      if (input$resid == TRUE) {
+        v$data %>% 
+          group_by(x) %>% 
+          mutate(fitted_values = input$intercept + x * input$slope,
+                 top_y = max(y, fitted_values),
+                 bottom_y = min(y, fitted_values)) %>%  
+          ungroup() %>% 
+          ggplot() +
+          geom_point(mapping = aes(x = x, y = y)) +
+          geom_abline(slope = input_slope, intercept = input_intercept,
+                      size = 1, color = "blue") +
+          geom_segment(mapping = aes(x = x, y = top_y, xend = x, 
+                                     yend = bottom_y), 
+                                     colour = "red") +
+          theme_bw() +
+          labs(x = "X", y = "Y", colour = NULL) +
+          coord_cartesian(xlim = c(0, 15), ylim = c(0, 15))
+        
+      } else {
+        plot_img
+      }
     }
-    
-    v$data %>% 
-    ggplot() +
-      geom_point(mapping = aes(x = x, y = y)) +
-      geom_abline(slope = input_slope, intercept = input_intercept,
-                  size = 1, color = "blue") +
-      theme_bw() +
-      labs(x = "X", y = "Y") +
-      coord_cartesian(xlim = c(0, 15), ylim = c(0, 15))
   })
   
+  })
   output$rss_table <- renderDataTable(
     df <- v$data %>% 
       mutate(fitted_values = input$intercept + x * input$slope,
@@ -64,7 +122,8 @@ shinyServer(function(input, output) {
             " and a slope of ", coef(fit)[2] %>% round(2), ".")
     } else {
       str_c("To find the line of best fit, try visualizing what trend
-            the points make on the graph!")
+            the points make on the graph. Do the points increase in y as 
+            you increase x? If so, try a positive slope.")
     }
   })
 })
