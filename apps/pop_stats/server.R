@@ -11,9 +11,7 @@ library(shiny)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output){
-  data <- c(rep(0, 100), rep(1, 3), 
-            rep(2, 15), rep(3, 70), rep(4, 6),
-            rep(5, 56), rep(6, 120), rep(7, 150), rep(8, 50))
+  data <- cars$speed
   
   output$distPlot <- renderPlot({
     mean_line <- mean(data)
@@ -31,13 +29,16 @@ shinyServer(function(input, output){
       geom_vline(data = lines, mapping = aes(xintercept = number, 
                                              color = Center),
                  size = 1.5) +
+      scale_x_continuous(breaks = seq(4, 25, by = 2)) +
       theme_bw() +
-      coord_cartesian(xlim = c(0, 8), ylim = c(0, 250)) +
-      labs(x = "Data", y = "Count", title = "Population Distribution")
+      coord_cartesian(xlim = c(4, 25), ylim = c(0, 5.5)) +
+      labs(x = "Car Speed (mph)", y = "Count", 
+           title = "Population Distribution")
   })
   
   output$sampPlot <- renderPlot({
     num <- input$sampsize
+    set.seed(28)
     samp <- sample(x = data, size = num)
     mean_line <- mean(samp)
     median_line <- median(samp)
@@ -54,9 +55,10 @@ shinyServer(function(input, output){
       geom_vline(data = lines, mapping = aes(xintercept = number, 
                                              color = Center),
                  size = 1.5) +
+      scale_x_continuous(breaks = seq(4, 25, by = 2)) +
       theme_bw() +
-      coord_cartesian(xlim = c(0, 8), ylim = c(0, 250)) +
-      labs(x = "Data", y = "Count", title = "Sampling Distribution")
+      coord_cartesian(xlim = c(4, 25), ylim = c(0, 5.5)) +
+      labs(x = "Car Speed (mph)", y = "Count", title = "Sampling Distribution")
   })
   
 })
