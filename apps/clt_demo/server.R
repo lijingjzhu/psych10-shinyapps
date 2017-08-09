@@ -12,6 +12,7 @@ library(tidyverse)
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   set.seed(1)
+  pop_size <- 5000
   data <- reactive({ tibble(uniform = runif(n = pop_size, min = 0, max = 4),
            weibull = rweibull(n = pop_size, shape = 1),
            normal = rnorm(n = pop_size, 0, 1),
@@ -19,7 +20,6 @@ shinyServer(function(input, output) {
   
   output$mainPlot <- renderPlot({
     dist <- input$distribution
-    pop_size <- 5000
    
     
     df <- tibble(val = c(as.matrix(data()[,dist]))) 
