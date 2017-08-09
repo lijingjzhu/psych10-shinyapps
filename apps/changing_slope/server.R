@@ -10,18 +10,28 @@
 library(shiny)
 library(tidyverse)
 library(stringr)
+library(MASS)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
   
   set.seed(78)
-  v <- reactiveValues(data = tibble(x = rnorm(10, mean = 7, sd = 5),
-                                   y = rnorm(10, mean = 7, sd = 5)))
+  v <- reactiveValues(data = mvrnorm(n = 15,
+                                     mu = c(6, 6),
+                                     Sigma = matrix(c(1, 0.5, 0.5, 1),
+                                                    ncol = 2)) %>% 
+                        as_tibble() %>% 
+                        rename(x = V1, y = V2))
+
+observeEvent(input$cor, {
   
-  observeEvent(input$refresh, {
-    v$data <- tibble(x = rnorm(10, mean = 7, sd = 5),
-                     y = rnorm(10, mean = 7, sd = 5))
-  })
+  v <- reactiveValues(data = mvrnorm(n = 15,
+                                     mu = c(6, 6),
+                                     Sigma = matrix(c(1, input$cor, 
+                                                      input$cor, 1),
+                                                    ncol = 2)) %>% 
+                        as_tibble() %>% 
+                        rename(x = V1, y = V2))
   
   observeEvent(input$resid, {
     
@@ -44,7 +54,7 @@ shinyServer(function(input, output) {
                     size = 1, color = "black") +
         theme_bw() +
         labs(x = "X", y = "Y") +
-        coord_cartesian(xlim = c(0, 15), ylim = c(0, 15))
+        coord_cartesian(xlim = c(4, 7), ylim = c(4, 8))
       
       if (input$resid == TRUE) {
         v$data %>% 
@@ -64,7 +74,7 @@ shinyServer(function(input, output) {
                                      colour = "red") +
           theme_bw() +
           labs(x = "X", y = "Y", colour = NULL) +
-          coord_cartesian(xlim = c(0, 15), ylim = c(0, 15))
+          coord_cartesian(xlim = c(4, 7), ylim = c(4, 8))
         
       } else {
         plot_img
@@ -77,7 +87,7 @@ shinyServer(function(input, output) {
                     size = 1, color = "blue") +
         theme_bw() +
         labs(x = "X", y = "Y") +
-        coord_cartesian(xlim = c(0, 15), ylim = c(0, 15))
+        coord_cartesian(xlim = c(4, 7), ylim = c(4, 8))
       
       if (input$resid == TRUE) {
         v$data %>% 
@@ -95,15 +105,16 @@ shinyServer(function(input, output) {
                                      colour = "red") +
           theme_bw() +
           labs(x = "X", y = "Y", colour = NULL) +
-          coord_cartesian(xlim = c(0, 15), ylim = c(0, 15))
+          coord_cartesian(xlim = c(4, 7), ylim = c(4, 8))
         
       } else {
         plot_img
       }
     }
   })
-  
+  })  
   })
+
   output$rss_table <- renderDataTable(
     df <- v$data %>% 
       mutate(fitted_values = input$intercept + x * input$slope,
