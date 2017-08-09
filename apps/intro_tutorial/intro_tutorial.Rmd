@@ -1,0 +1,118 @@
+---
+title: "Tutorial"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include = FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Summarizing Data
+
+Once you have collected the data for your experiment, how do you start
+analyzing the data? A good first step is to look at the summary statistics
+and the central measures. 
+
+Assume we have collected data on the effect of two soporific drugs on 10
+different patients. We want to see if these two drugs do indeed increase
+patients' hours of sleep per night. The data is in a variable called `sleep`.
+
+The data has three variables: `extra`, `group`, and `ID`. 
+
+`extra` represents
+the change in the amount of hours of sleep per night. A positive number here
+represents an increase in hours of sleep compared to the control. A negative 
+number represents a decrease in hours of sleep compared to the control. 
+
+`group` represents the type of drug given (drug 1 or drug 2).
+
+`ID` represents the patient ID. 
+
+### Exercise 
+
+*Here's a simple exercise with an empty code chunk provided for entering the answer.*
+
+We want to first look at the data we collected. We can look at the
+first couple of rows of our data set by calling the `head()` function. 
+
+```{r head, exercise = TRUE}
+head(sleep)
+```
+
+If you get an error that `sleep` does not exist, then load 
+`library(datasets)`. You can also call sleep straight from its namespace as 
+follows.
+
+```{r namespace, exercise = TRUE}
+head(datasets::sleep)
+```
+
+### Exercise
+
+The drug used is currently displayed as a number. How can we know if it is
+coded as a numeric or a factor in the data frame? To do this, use
+the function `summary()` on the data set `sleep`. `summary()` is a very
+useful function because it can provide a quick overview of both
+numeric and factor variables. For numeric values it 
+
+```{r summary, exercise = TRUE}
+summary()
+```
+
+```{r types}
+quiz(
+  question("How are the three variables typcasted in the sleep data?",
+    answer("extra = numeric, group = factor, ID = factor", correct = TRUE),
+    answer("extra = factor, group = factor, ID = factor"),
+    answer("extra = numeric, group = numeric, ID = factor"),
+    answer("extra = factor, group = factor, ID = numeric"))
+  )
+```
+
+```{r typecast}
+quiz(
+  question("Why is it important that we know how a variable is casted in the dataframe?",
+    answer("It's not important since all variables in a dataframe are the same type."),
+    answer("We can convert variables to the type we want to make analysis easier.", correct = TRUE),
+    answer("We can use the appropriate functions for different types of variables.", correct = TRUE),
+    answer("We can rename the variables to a name that suits its type."))
+  )
+```
+
+We see that the mean increase in hours of sleep for both types of drugs is
+`r mean(sleep$extra)`. However, we have patients that have had maximum
+increase of `r max(sleep$extra)` hours of sleep and a loss of 
+`r min(sleep$extra)` hours of sleep. This leads to the question - is 
+one drug more effective than the other?
+
+### Exercise 
+
+Let's look at the summary statistics of the entries where patients took drug 1 
+and compare it to the overall distribution. 
+
+```{r print-limit, exercise = TRUE, exercise.eval = TRUE}
+summary(sleep)
+```
+
+```{r print-limit-hint}
+# Note that we have to first subset our data such that the observations where the
+# patients took drug 1 are being kept 
+
+sleep$group =="1"
+
+# We subset a dataframe the same way we subset a matrix
+# We want to subset the rows, not the columns in this case
+
+sleep[4,]
+```
+
+```{r control}
+quiz(
+  question("True or False: Patients who took drug 1 sleep more than the control.",
+    answer("True", correct = TRUE),
+    answer("False"))
+  )
+```
+
