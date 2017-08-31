@@ -1,23 +1,31 @@
 ---
-title: "Tutorial"
+title: "R Basics I: Starting New Projects"
 output: learnr::tutorial
 runtime: shiny_prerendered
 ---
 
 ```{r setup, include = FALSE}
 library(learnr)
+library(tidyverse)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## Summarizing Data
+## Goals of Tutorial
 
-Once you have collected the data for your experiment, how do you start
-analyzing the data? A good first step is to look at the summary statistics
-and the central measures. 
+Starting a new project can be daunting and even scarier than writing your RBA paper for PWR. This tutorial will guide you through good practices when first starting to work with data. 
 
-Assume we have collected data on the effect of two soporific drugs on 10
-different patients. We want to see if these two drugs do indeed increase
-patients' hours of sleep per night. The data is in a variable called `sleep`.
+Goals for this session include:
+
+1. Looking for help in RStudio;
+2. Understanding the data and data frame using exploratory data analysis;
+3. Examining what can go wrong when performing simple tasks in R. 
+
+For this tutorial, assume we have collected data on the effect of 
+two soporific drugs (drugs that make you sleepy) on 10
+different patients. We want to see if these two drugs do indeed 
+increase patients' hours of sleep per night. 
+
+The data is in a data frame called `sleep`.
 
 The data has three variables: `extra`, `group`, and `ID`. 
 
@@ -30,12 +38,22 @@ number represents a decrease in hours of sleep compared to the control.
 
 `ID` represents the patient ID. 
 
-### Exercise 
+Let's get started! Click on "Next Topic" to begin.
 
-*Here's a simple exercise with an empty code chunk provided for entering the answer.*
+## Understanding Data
 
-We want to first look at the data we collected. We can look at the
-first couple of rows of our data set by calling the `head()` function. 
+Once you have collected the data for your experiment, how do you start
+analyzing the data? A good first step is to first understand where the data 
+came from. If you are doing your own research, then you should know the ins
+and outs. But what if you were handed a dataset from a specific R package?
+
+You can use `?sleep` to understand it more. 
+
+```{r help, exercise = TRUE}
+?sleep
+```
+
+Let's first look at the first few rows of our `sleep` data.
 
 ```{r head, exercise = TRUE}
 head(sleep)
@@ -43,11 +61,45 @@ head(sleep)
 
 If you get an error that `sleep` does not exist, then load 
 `library(datasets)`. You can also call sleep straight from its namespace as 
-follows.
+follows. But note you might have to continue calling it straight from its
+namespace for the rest of the exercises.
 
 ```{r namespace, exercise = TRUE}
 head(datasets::sleep)
 ```
+
+Note that at a first glance, all of our values are numeric. It looks like 
+there are three variables in our
+data. We can figure out the full dimension of our data by using the `dim()`
+function.
+
+```{r dim, exercise = TRUE}
+dim()
+```
+
+We see the function returns 2 numbers. The first number is how 
+many rows are in the data frame. The second number is how many columns there are
+in the data frame. If you want to know just the number of rows or columns, you can 
+use `nrow(sleep)` or `ncol(sleep)`. 
+
+```{r row, exercise = TRUE}
+nrow()
+```
+
+There are 20 rows in our data frame.
+
+```{r col, exercise = TRUE}
+ncol()
+```
+
+There are 3 columns in our data frame. 
+
+## Structure of Data
+
+Now that we know what our data's physical attributes are, we want to further
+understand what each variable's type is. By understanding variable type,
+we can further determine what kinds of operations we can perform with
+different types of variables.
 
 ### Exercise
 
@@ -55,10 +107,18 @@ The drug used is currently displayed as a number. How can we know if it is
 coded as a numeric or a factor in the data frame? To do this, use
 the function `summary()` on the data set `sleep`. `summary()` is a very
 useful function because it can provide a quick overview of both
-numeric and factor variables. For numeric values it 
+numeric and factor variables. For numeric values it gives us a quantile summary.
+For factors it gives us a frequency count. 
 
 ```{r summary, exercise = TRUE}
 summary()
+```
+
+You can also use `str()` (stands for "structure") if you just want a 
+quick glimpse of the data and not a full-blown summary.
+
+```{r structure, exercise = TRUE}
+str()
 ```
 
 ```{r types}
@@ -87,25 +147,37 @@ increase of `r max(sleep$extra)` hours of sleep and a loss of
 `r min(sleep$extra)` hours of sleep. This leads to the question - is 
 one drug more effective than the other?
 
+## Visualizing Data
+
+In order to answer the question, we can start by looking at some numbers. 
+
 ### Exercise 
 
 Let's look at the summary statistics of the entries where patients took drug 1 
-and compare it to the overall distribution. 
+and compare it to the overall distribution. You can use `filter()` to only
+look at the observations where `group == 1`. Note that 1 is not a numeric
+in the data set, so we have to put it in quotes.
 
 ```{r print-limit, exercise = TRUE, exercise.eval = TRUE}
-summary(sleep)
+sleep %>% 
+  filter()
 ```
 
+The piping function `%>%` is a tool that brings the data from the first 
+variable call to the function. This allows us to type `sleep %>% filter(extra > 0)`
+as opposed to nesting all of the functions together in Base R `sleep[sleep$extra > 0,]`. Note that we also don't need `filter(sleep$extra > 0)` since the `sleep`
+data frame is piped in. 
+
+The piping function is useful because it will also allow us to build
+layers into our data manipulation and data visualization code. 
+
 ```{r print-limit-hint}
-# Note that we have to first subset our data such that the observations where the
-# patients took drug 1 are being kept 
+# After filtering for the group you want, you need to pipe it into the summary()
+# function
 
-sleep$group =="1"
-
-# We subset a dataframe the same way we subset a matrix
-# We want to subset the rows, not the columns in this case
-
-sleep[4,]
+sleep %>% 
+  filter() %>% 
+  summary()
 ```
 
 ```{r control}
@@ -116,3 +188,179 @@ quiz(
   )
 ```
 
+It is hard to interpret numbers without starting at them until your eyes hurt.
+Let's try to visualize what the data is telling us. 
+
+We want to understand the overall ranges of the different types of drugs.
+To visualize range, we can use a boxplot. Try plotting using `ggplot()`.
+While `ggplot()` is also in the tidyverse, note that its connector is not the
+pipe %>% but the +. The `+` adds layer to your picture, which is established
+by a blank canvas call with `ggplot()`. `geom_boxplot()` will call a
+boxplot layer for you. The `mapping` argument will allow you to places
+variables where you want them to go (on the x and y-axis in this case). Use
+`?geom_boxplot()` to learn more. 
+
+```{r print-boxplot, exercise = TRUE}
+sleep %>% 
+  ggplot() +
+  geom_boxplot(mapping = aes(x = , y = ))
+```
+
+```{r print-boxplot-hint}
+# Your x value is typically a factor. What do we want to distinguish the two groups 
+# by? Perhaps by drug (group)?
+```
+
+```{r results}
+quiz(
+  question("Does drug 1, on average, make patients sleepier or less sleepy than those on drug 2?",
+    answer("More sleepy"),
+    answer("Less sleepy", correct = TRUE)
+  )
+)
+```
+
+Since drug 1 on average makes patients less sleepy, we did notice the whiskers
+on the boxplot. How large exactly is the variance on `extra`? To examine the
+distribution, make a histogram with `geom_histogram` to explore this question.
+Remember to adjust the binwidth!
+
+```{r print-hist, exercise = TRUE}
+sleep %>% 
+  filter() %>% 
+  ggplot() +
+  geom_histogram(mapping = aes(x = ), binwidth = )
+```
+
+```{r print-hist-hint}
+# Try different binwidths to see how the histogram changes. Which one is the most
+# informative?
+```
+
+Assume that the `ID` value is actually not different individuals, but actually
+a measure of a user's age over time. We are curious as to how drug 1 affected
+a patient over time. How can we visualize trends over time or with a certain order?
+With a line plot of course!
+
+There are 3 steps to this exercise. We have to first typecast the `ID` 
+variable into a numeric. Use `mutate()` and the piping connector to do this.
+Then we want to overlay `geom_point` to mark our
+points on the graph first. This is how you create a scatter plot. Then to
+connect the points, we overlay `geom_line`. Try it out in the exercise. This
+one's a little tricky, so if you need help try the hint. 
+
+```{r print-point, exercise = TRUE}
+sleep %>% 
+  ggplot() +
+  geom_point() +
+  geom_line()
+```
+
+```{r print-point-hint}
+sleep %>% 
+  filter(group == "1") %>% 
+  mutate(ID = as.numeric(ID)) %>% 
+  # We will be using the same x and y arguments for 2 geoms, so it is better to put 
+  # it in the general ggplot() call
+  ggplot(mapping = aes(x = , y = )) +
+  geom_point() +
+  geom_line()
+```
+
+Are there any particular trends you see with the data? For a specific individual,
+we see that there is an extra 2 - 3 hours of sleep near the 6 or 7th index. 
+However, the sleep returns to similar levels as the 1st or 2nd index. If we had
+more data, it is possible that the pattern is more cyclical. Again, this is
+only assuming that ID represents a time measure rather than individuals! If you
+plot a factor on the x-axis, then the graph has no real meaning (because we 
+can't really see any trends). 
+
+## Data Manipulation
+
+In the instance where you have extra information regarding your data or if
+you measured your observations using auxiliary information, you may want to 
+alter the values in your data set and save them. This requires variable
+assignment (you can get more practice with DataCamp) and `mutate()`, 
+`filter()` which we used above. 
+
+### Exercises
+
+We want to change all of the extra values in group 2 to be 0.5 less than they 
+are because we forgot to start the timer on time. Don't forget to assign it to 
+a new variable so that you are saving the results. 
+
+The hint will give you an answer. So take a peak to see if you wrote 
+it correctly.
+
+```{r manip, exercise = TRUE}
+sleep %>% 
+  filter()
+```
+
+```{r manip-hint}
+sleep <- sleep %>% 
+  filter(group == "2") %>% 
+  mutate(extra = extra - 0.5)
+```
+
+Since we have 20 observations, that is a lot of data to put in a presentation.
+I want a condensed table with the averages for each group of drug tested.
+The format of the table should give me two variables (average_extra and group).
+Where `average_extra` is the average of all the extra values for that
+specific group number. 
+
+This one uses `group_by()`, which is essentially breaking down the data set
+by a variable and then performing the requested operation. `group_by()`
+performs a function similar to `filter()` in the sense that it filters the
+data set many times such that for each value of the variable we are grouping by,
+we can `summarise()` the data for that group. 
+
+Both `summarize()` and `summarise()` are the same. The founder of dplyr is from 
+New Zealand, so he wanted to be inclusive.
+
+The function to take the average is `mean()`. 
+
+```{r group, exercise = TRUE}
+sleep %>% 
+  group_by() %>% 
+  summarise()
+```
+
+```{r group-hint}
+sleep %>% 
+  group_by(group) %>% 
+  summarise(extra = mean(extra))
+```
+
+Now let's look at the sum of the total quantity of sleep hours lost. This means
+negative `extra` should be counted as positive. You can use the `abs()` function
+to take absolute value.
+
+```{r abs, exercise = TRUE}
+sleep %>% 
+  group_by() %>% 
+  summarise()
+```
+
+```{r abs-hint}
+sleep %>% 
+  group_by(group) %>% 
+  summarise(extra = extra %>% abs() %>% sum())
+```
+
+Hope you all got a good grasp on basic data wrangling. If you want to learn
+more you can go to this website ([R for Data Science by Hadley Wickham and
+Garrett Grolemund](http://r4ds.had.co.nz/)).
+
+## Final Thoughts
+
+Congratulations! 
+
+You just walked through the beginning of a project. Now what
+drives your project is your curiosity and your ability to ask good questions.
+This is the part of data work that is most like a detective novel. You should
+be applying what you learned in class to sharpen your intuition. A key
+component of good data work is asking the right questions and knowing the 
+right tools to answer those questions. 
+
+Now you can procrastinate! Yay!
