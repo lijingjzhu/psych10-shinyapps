@@ -1,23 +1,13 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
 library(tidyverse)
 library(psych)
 
-# Define UI for application that draws a histogram
 ui <- fluidPage(
    
    # Application title
    titlePanel("Regression Towards the Mean"),
    
-   # Sidebar with a slider input for number of bins 
+   # Sidebar with text and the customizable inputs
    sidebarLayout(
       sidebarPanel(
         p("Regression towards the mean is the phenomenon that if we have a
@@ -49,8 +39,7 @@ ui <- fluidPage(
           tell what height the child pea is?")
         ),
       
-      
-      # Show a plot of the generated distribution
+      # Show central tendency plots
       mainPanel(
          plotOutput("parentPlot"),
          plotOutput("childPlot")
@@ -64,6 +53,8 @@ server <- function(input, output) {
      upper_bound <- quantile(galton$parent, input$quant %>% as.numeric())
      dheight <- approxfun(density(galton$parent))
      
+     # Logic regarding the threshold input
+     # If it is an upper quantile, we need to use a different filter operation
      if (input$quant > 0.5) {
        set.seed(34)
        pinpoints <- galton %>% 
@@ -84,6 +75,7 @@ server <- function(input, output) {
                 ynew = dheight(parent))
      }
      
+     # Base plot
      curr_plot <- galton %>% 
        as_tibble() %>% 
        ggplot() +
@@ -97,6 +89,7 @@ server <- function(input, output) {
        labs(x = "Height of Parent (in)", y = "Density", 
             size = NULL)
      
+     # Adding in the mean depending on user input
      if (input$parentsampmean == TRUE) {
        curr_plot +
          geom_vline(mapping = aes(xintercept = mean(pinpoints$xnew)), 
@@ -106,6 +99,7 @@ server <- function(input, output) {
      }
    })
    
+   # Plotting the child plot to show the movement towards the mean
    output$childPlot <- renderPlot({
      upper_bound <- quantile(galton$parent, input$quant %>% as.numeric())
      dheight <- approxfun(density(galton$child))

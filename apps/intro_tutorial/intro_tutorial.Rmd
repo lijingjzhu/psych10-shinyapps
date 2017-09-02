@@ -12,7 +12,9 @@ knitr::opts_chunk$set(echo = FALSE)
 
 ## Goals of Tutorial
 
-Starting a new project can be daunting and even scarier than writing your RBA paper for PWR. This tutorial will guide you through good practices when first starting to work with data. 
+Starting a new project can be daunting and even scarier than writing your 
+RBA paper for PWR. This tutorial will guide you through good practices when 
+first starting to work with data. 
 
 Goals for this session include:
 
@@ -47,22 +49,36 @@ analyzing the data? A good first step is to first understand where the data
 came from. If you are doing your own research, then you should know the ins
 and outs. But what if you were handed a dataset from a specific R package?
 
-You can use `?sleep` to understand it more. 
+You can use `?sleep` to understand it more. You can use `?` for a function,
+dataset, or anything you don't understand in R to get help. Make sure you
+are connected to the internet. A help page should appear in one of your 
+panels in RStudio. 
 
 ```{r help, exercise = TRUE}
 ?sleep
 ```
 
-Let's first look at the first few rows of our `sleep` data.
+Let's first look at the first few rows of our `sleep` data. Use the `head()`
+function. You can use `?head` for examples and details about the function. 
 
 ```{r head, exercise = TRUE}
-head(sleep)
+?head
+```
+
+Now use head on the dataset `sleep`. 
+
+```{r head_in, exercise = TRUE}
+head()
 ```
 
 If you get an error that `sleep` does not exist, then load 
 `library(datasets)`. You can also call sleep straight from its namespace as 
 follows. But note you might have to continue calling it straight from its
 namespace for the rest of the exercises.
+
+This technique is particularly useful when you have two package with the
+same function. By specifying the package the function is from, R won't get
+confused and throw you unnecessary errors. 
 
 ```{r namespace, exercise = TRUE}
 head(datasets::sleep)
@@ -99,13 +115,18 @@ There are 3 columns in our data frame.
 Now that we know what our data's physical attributes are, we want to further
 understand what each variable's type is. By understanding variable type,
 we can further determine what kinds of operations we can perform with
-different types of variables.
+different types of variables. Furthermore, variable types are especially
+important when formualating your analysis attack plan for your project.
+Categorical variables and numeric variables require ifferent models and 
+different visualization techniques.
 
 ### Exercise
 
 The drug used is currently displayed as a number. How can we know if it is
 coded as a numeric or a factor in the data frame? To do this, use
-the function `summary()` on the data set `sleep`. `summary()` is a very
+the function `summary()` on the data set `sleep`. 
+
+`summary()` is a very
 useful function because it can provide a quick overview of both
 numeric and factor variables. For numeric values it gives us a quantile summary.
 For factors it gives us a frequency count. 
@@ -136,7 +157,7 @@ quiz(
   question("Why is it important that we know how a variable is casted in the dataframe?",
     answer("It's not important since all variables in a dataframe are the same type."),
     answer("We can convert variables to the type we want to make analysis easier.", correct = TRUE),
-    answer("We can use the appropriate functions for different types of variables.", correct = TRUE),
+    answer("We can use the appropriate functions and techniques for different types of variables.", correct = TRUE),
     answer("We can rename the variables to a name that suits its type."))
   )
 ```
@@ -149,7 +170,8 @@ one drug more effective than the other?
 
 ## Visualizing Data
 
-In order to answer the question, we can start by looking at some numbers. 
+In order to answer whether one drug is more effective in inducing sleep
+than the other, we can start by looking at some numbers. 
 
 ### Exercise 
 
@@ -165,15 +187,17 @@ sleep %>%
 
 The piping function `%>%` is a tool that brings the data from the first 
 variable call to the function. This allows us to type `sleep %>% filter(extra > 0)`
-as opposed to nesting all of the functions together in Base R `sleep[sleep$extra > 0,]`. Note that we also don't need `filter(sleep$extra > 0)` since the `sleep`
-data frame is piped in. 
+as opposed to nesting all of the functions together in Base R 
+`sleep[sleep$extra > 0,]`. Note that we also don't need `filter(sleep$extra > 0)` 
+since the `sleep` data frame is piped in. 
 
 The piping function is useful because it will also allow us to build
 layers into our data manipulation and data visualization code. 
 
 ```{r print-limit-hint}
 # After filtering for the group you want, you need to pipe it into the summary()
-# function
+# function. Since the summary() function receives the argument from the previous pipe, 
+# it does not need an argument
 
 sleep %>% 
   filter() %>% 
@@ -182,7 +206,7 @@ sleep %>%
 
 ```{r control}
 quiz(
-  question("True or False: Patients who took drug 1 sleep more than the control.",
+  question("True or False: Patients who take drug 1 sleep more than the control.",
     answer("True", correct = TRUE),
     answer("False"))
   )
@@ -270,7 +294,9 @@ sleep %>%
 Are there any particular trends you see with the data? For a specific individual,
 we see that there is an extra 2 - 3 hours of sleep near the 6 or 7th index. 
 However, the sleep returns to similar levels as the 1st or 2nd index. If we had
-more data, it is possible that the pattern is more cyclical. Again, this is
+more data, it is possible that the pattern is more cyclical. 
+
+Again, this is
 only assuming that ID represents a time measure rather than individuals! If you
 plot a factor on the x-axis, then the graph has no real meaning (because we 
 can't really see any trends). 
@@ -283,14 +309,38 @@ alter the values in your data set and save them. This requires variable
 assignment (you can get more practice with DataCamp) and `mutate()`, 
 `filter()` which we used above. 
 
-### Exercises
-
-We want to change all of the extra values in group 2 to be 0.5 less than they 
-are because we forgot to start the timer on time. Don't forget to assign it to 
-a new variable so that you are saving the results. 
-
 The hint will give you an answer. So take a peak to see if you wrote 
 it correctly.
+
+### Exercises
+
+We were given extra information about the 5th observation in our data frame.
+We want to look only at the 5th row in our data frame. How do we index
+the 5th row?
+
+```{r index, exercise = TRUE}
+sleep
+```
+
+```{r index-hint}
+sleep[5,]
+```
+
+We want to use the `extra` variable of the 5th observation as a parameter in
+another calculation we are doing. How do we extract this value? How do we
+index the `extra` variable of the 5th observation?
+
+```{r rowdex, exercise = TRUE}
+sleep
+```
+
+```{r rowdex-hint}
+sleep[5, 1]
+```
+
+Next, we realized that we might have made a mistake in our experiment set up
+for drug group 2. We want to change all of the extra values in group 2 to be 
+0.5 less than they are because we forgot to start the timer on time. 
 
 ```{r manip, exercise = TRUE}
 sleep %>% 
@@ -298,13 +348,13 @@ sleep %>%
 ```
 
 ```{r manip-hint}
-sleep <- sleep %>% 
+sleep %>% 
   filter(group == "2") %>% 
   mutate(extra = extra - 0.5)
 ```
 
 Since we have 20 observations, that is a lot of data to put in a presentation.
-I want a condensed table with the averages for each group of drug tested.
+We want a condensed table with the averages for each group of drug tested.
 The format of the table should give me two variables (average_extra and group).
 Where `average_extra` is the average of all the extra values for that
 specific group number. 

@@ -1,21 +1,11 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
+libary(tidyverse)
 
-# Define UI for application that draws a histogram
 ui <- fluidPage(
    
    # Application title
    titlePanel("Hypothesis Testing and Error"),
    
-   # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
         p("Hypothesis testing is a tricky concept. In this visualization, we 
@@ -63,7 +53,6 @@ ui <- fluidPage(
                       value = FALSE)
          ),
       
-      # Show a plot of the generated distribution
       mainPanel(
          plotOutput("popPlot"),
          plotOutput("distPlot"),
@@ -78,14 +67,15 @@ ui <- fluidPage(
    )
 )
 
-# Define server logic required to draw a histogram
 server <- function(input, output) {
   
+  # Obtaining the original set of data for our null hypothesis
    df <- cars %>% 
      filter(dist < 85)
    cars_mean <- mean(df$dist)
    cars_sd <- sd(df$dist)
-    
+  
+   # Population plot
    output$popPlot <- renderPlot({
      
      line_seq <- seq(-20, 200, by = 0.01)
@@ -107,6 +97,7 @@ server <- function(input, output) {
             title = "Sample Stopping Distance Distribution")
    })
    
+   # Alternative hypothesis plot
    output$distPlot <- renderPlot({
      alt_mean <- input$mean
      alt_sd <- sqrt(input$variance)
@@ -137,6 +128,7 @@ server <- function(input, output) {
        labs(x = "Car Stopping Distance (ft)", y = "Density",
             title = "Null and Alternative Hypotheses")
      
+     # Crazy logic to highlight different parts of the hypothesis test
      if (input$accept == TRUE) {
        accept_curve <- norm_curve %>%
          mutate(ymin = 0) %>% 
@@ -185,6 +177,7 @@ server <- function(input, output) {
                      fill = "aquamarine3", alpha = 0.3)
      }
      
+     # Plot the final plot
      curr_plot    
          
      })

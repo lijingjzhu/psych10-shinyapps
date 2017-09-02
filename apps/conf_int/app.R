@@ -1,23 +1,11 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
 library(tidyverse)
 library(stringr)
 
-# Define UI for application that draws a histogram
 ui <- fluidPage(
    
-   # Application title
    titlePanel("Confidence Intervals"),
    
-   # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
         p("A Confidence Interval (CI) is a range estimate of our target
@@ -68,7 +56,6 @@ ui <- fluidPage(
           investigation? What are some other research questions to ask?")
       ),
       
-      # Show a plot of the generated distribution
       mainPanel(
          plotOutput("origPlot"),
          plotOutput("distPlot")
@@ -76,10 +63,10 @@ ui <- fluidPage(
    )
 )
 
-# Define server logic required to draw a histogram
 server <- function(input, output) {
    
    output$origPlot <- renderPlot({
+     # Getting the mean of the scores
      fit <- lm(data = sat.act, ACT ~ 1)
      sat.act %>% 
        ggplot() +
@@ -92,6 +79,7 @@ server <- function(input, output) {
             title = "Population Distribution with Mean of 28.5")
    })
 
+# Confidence interval display
 observeEvent(input$refresh, {   
     output$distPlot <- renderPlot({
     n <- input$trials %>% as.numeric()
